@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*##################ESTRUTURA DAS FIRUGINHAS (ITEM 1)########################*/
+typedef struct
+{
+    char codigo[5];
+    char titulo[35];
+    char secao[29];
+    char tipo[12];
+} FIGURINHASCOLADAS;
+/*###########################################################################*/
+
+/*##################ESTRUTURA DAS FIRUGINHAS REPETIDAS (ITEM 5)##############*/
+typedef struct
+{
+    char codigo[5];
+    char titulo[35];
+    char secao[29];
+    char tipo[12];
+} FIGURINHASREPETIDAS;
+/*###########################################################################*/
+
+/*-################ESTRUTURA DAS FIRUGINHAS NÃO COLADAS (ITEM 5)#############*/
+typedef struct
+{
+    char codigo[5];
+    char titulo[35];
+    char secao[29];
+    char tipo[12];
+} FIGURINHASNAOCOLADAS;
+/*###########################################################################*/
+
+/*################INSERIR/LISTAR/ALTERAR/EXCLUIR (ITEM 1)####################*/
+void funcaoInserir(FIGURINHASCOLADAS *figurinhasColadas, FIGURINHASDISPONIVEIS *figurinhasDisponiveis, int *tamanhoStructFigurinhasColadas)
+{
+    *(tamanhoStructFigurinhasColadas)++;
+    figurinhasColadas = (FIGURINHASCOLADAS *)realloc(figurinhasColadas, *(tamanhoStructFigurinhasColadas) * sizeof(FIGURINHASCOLADAS));
+    int contador = 0;
+    char codigoDigitado[5];
+    printf("Digite o código da figurinha que desejas inserir:");
+    fgets(codigoDigitado, 5, stdin);
+    codigoDigitado[strcspn(codigoDigitado, "\n")] = '\0';
+    setbuf(stdin, NULL);
+
+    for (int i = 0; i < *(tamanhoStructFigurinhasColadas); i++)
+    {
+        if (codigoDigitado == figurinhasDisponiveis[i].codigo)
+        {
+            figurinhasColadas[tamanhoStructFigurinhasColadas].codigo == figurinhasDisponiveis[i].codigo;
+            figurinhasColadas[tamanhoStructFigurinhasColadas].titulo == figurinhasDisponiveis[i].titulo;
+            figurinhasColadas[tamanhoStructFigurinhasColadas].secao == figurinhasDisponiveis[i].secao;
+            figurinhasColadas[tamanhoStructFigurinhasColadas].tipo == figurinhasDisponiveis[i].tipo;
+        }
+        else
+        {
+            contador++;
+        } // se a figurinha estiver disponivel, ele cola
+    }     // for
+
+    if (contador == *(tamanhoStructFigurinhasColadas))
+    {
+        printf("ERRO: a figurinha selecionada não está disponível para ser colada\n");
+        *(tamanhoStructFigurinhasColadas)--;
+        figurinhasColadas = (FIGURINHASCOLADAS *)realloc(figurinhasColadas, *(tamanhoStructFigurinhasColadas) * sizeof(FIGURINHASCOLADAS));
+    }
+} // FUNÇÃO DO CASE 1
+
+void funcaoListar(FIGURINHASCOLADAS *figurinhasColadas, int *tamanhoStructFigurinhasColadas)
+{
+    printf("FIGURINHAS COLADAS:\n");
+    for (int i = 0; i < *(tamanhoStructFigurinhasColadas); i++)
+    {
+        printf("|%35s|\n", figurinha.titulo);
+    } // for que printa as figurinhas coladas
+} // FUNÇÃO DO CASE 2
+
+void funcaoAlterar(FIGURINHASCOLADAS *figurinhasColadas, FIGURINHASDISPONIVEIS *figurinhasDisponiveis, int *tamanhoStructFigurinhasColadas)
+{
+} // FUNÇÃO DO CASE 3 EM STANDBY POIS NAO SEI O QUE FAZER
+
+void funcaoExcluir(FIGURINHASCOLADAS *figurinhasColadas, FIGURINHASDISPONIVEIS *figurinhasDisponiveis, int *tamanhoStructFigurinhasColadas)
+{
+    int salvaIndice;
+    char codigoDigitado[5];
+    printf("Digite o código da figurinha que desejas excluir:");
+    fgets(codigoDigitado, 5, stdin);
+    codigoDigitado[strcspn(codigoDigitado, "\n")] = '\0';
+    setbuf(stdin, NULL);
+
+    for (int i = 0; i < *(tamanhoStructFigurinhasColadas); i++)
+    {
+        if (figurinha[i].codigo == codigoDigitado)
+        {
+            salvaIndice = i;
+            figurinhasColadas[i].codigo = NULL;
+            figurinhasColadas[i].titulo = NULL;
+            figurinhasColadas[i].secao = NULL;
+            figurinhasColadas[i].tipo = NULL;
+        } // if-else que remove a figurinha
+    }     // for que passa pelas figurinhas ate encontrar a desejada e remove ela
+
+    for (int i = salvaIndice; i < *(tamanhoStructFigurinhasColadas); i++)
+    {
+        figurinhasColadas[i].codigo = figurinhasColadas[i + 1].codigo;
+        figurinhasColadas[i].titulo = figurinhasColadas[i + 1].codigo;
+        figurinhasColadas[i].secao = figurinhasColadas[i + 1].codigo;
+        figurinhasColadas[i].tipo = figurinhasColadas[i + 1].codigo;
+    } // for que passa as figurinhas uma casa p tras, começando a partir do índice da figurinha removida
+    tamanhoStructFigurinhasColadas--;
+    figurinhasColadas = (FIGURINHASCOLADAS *)realloc(figurinhasColadas, *(tamanhoStructFigurinhasColadas) * sizeof(FIGURINHASCOLADAS));
+
+} // FUNÇÃO DO CASE 4
+
+void menu(FIGURINHASCOLADAS *figurinhasColadas; FIGURINHASDISPONIVEIS * figurinhasDisponiveis)
+{ // preciso também da relação de figurinhas disponíveis, por baseado nela que faço toda a alteração
+    int opcaoMenu;
+    int tamanhoStructFigurinhasColadas = 0;
+    printf("O que desejas fazer?\n1 - Inserir\n2 - Listar\n3 - Alterar\n4 - Excluir\n");
+
+    do
+    {
+        scanf("%d", opcaoMenu);
+        setbuf(stdin, NULL);
+    } while (opcaoMenu > 0 && opcaoMenu < 5);
+
+    switch (opcaoMenu)
+    {
+    case 1:
+        funcaoInserir(figurinhasColadas, figurinhasDisponiveis, &tamanhoStructFigurinhasColadas);
+        break;
+
+    case 2:
+        funcaoListar(figurinhasColadas, &tamanhoStructFigurinhasColadas);
+        break;
+
+    case 3:
+        funcaoAlterar(figurinhasColadas, figurinhasDisponiveis, &tamanhoStructFigurinhasColadas);
+        break;
+
+    case 4:
+        funcaoExcluir(figurinhasColadas, figurinhasDisponiveis, &tamanhoStructFigurinhasColadas);
+        break;
+    } // switch
+
+} // função alteraFigurinhas
+/*###########################################################################*/
