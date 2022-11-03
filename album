@@ -1,0 +1,583 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+
+typedef enum{BRASIL = 1, CANADA, CHILE, UGANDA}paises;
+typedef enum{SIM = 1, NAO}escolha;
+
+//###########################---Samuel---###################################
+
+//---------------------ESTRUTURA DAS FIGURINHAS
+typedef struct
+{
+  char codigo[7];
+  char titulo[35];
+  char secao[29];
+  char tipo[12];
+  int indice;
+} Figurinha;
+
+//---------------------ESTRUTURA DO ÁLBUM
+
+typedef struct{
+  //preciso mallocar esses vetores do tipo figurinha:
+  Figurinha* figColadas;
+  Figurinha* figFaltantes;
+  Figurinha* figRepetidas;
+  Figurinha* figDisponiveis;
+  int qntColadas;
+  int qntFaltantes;
+  int qntRepetidas;
+  int qntDisponiveis;
+  char nome[21];
+  char telefone[21];
+  double dinheiro_atual;
+  float gastoPacote;
+  int acertos_quiz;
+}Album;
+
+//---------------------CABEÇALHO
+
+void preencherFigurinhasTotaisAlbum(Figurinha figTotais[]);
+void zerarContadores(Album* album);
+void menu(Album* album,Figurinha Aleatorias[], Figurinha figTotais[]);
+void funcaoInserir(Album* album);
+void funcaoListar(Album* album);
+void funcaoExcluir(Album* album);
+void gerarIndiceAleatorio(Figurinha Aleatorias[]);
+void salvarFigAleatorias(Figurinha Aleatorias[],Figurinha figTotais[]);
+void printarCodigoFigurinhasAleatorias(Figurinha Aleatorias[]);
+void verificarColagem(Album* album,Figurinha figTotais[],Figurinha Aleatorias[]);
+void BRA_SC();
+void CAN_SC();
+void CHI_SC();
+void UGD_SC();
+
+void preencherFigurinhasTotaisAlbum(Figurinha figTotais[]){
+  strcpy(figTotais[0].codigo,"FWC1");
+  strcpy(figTotais[0].titulo,"Murilo");
+  strcpy(figTotais[0].secao,"Brasil");
+  strcpy(figTotais[0].tipo,"Normal");
+  figTotais[0].indice = 1;
+
+  strcpy(figTotais[1].codigo,"FWC2");
+  strcpy(figTotais[1].titulo,"Garrido");
+  strcpy(figTotais[1].secao,"Brasil");
+  strcpy(figTotais[1].tipo,"Normal");
+  figTotais[1].indice = 2;
+
+  strcpy(figTotais[2].codigo,"FWC3");
+  strcpy(figTotais[2].titulo,"Volpato");
+  strcpy(figTotais[2].secao,"Canada");
+  strcpy(figTotais[2].tipo,"Normal");
+  figTotais[2].indice = 3;
+
+  strcpy(figTotais[3].codigo,"FWC4");
+  strcpy(figTotais[3].titulo,"Samuel");
+  strcpy(figTotais[3].secao,"Canada");
+  strcpy(figTotais[3].tipo,"Metalica");
+  figTotais[3].indice = 4;
+
+  strcpy(figTotais[4].codigo,"FWC5");
+  strcpy(figTotais[4].titulo,"Felipe");
+  strcpy(figTotais[4].secao,"Canada");
+  strcpy(figTotais[4].tipo,"Metalica");
+  figTotais[4].indice = 5;
+
+  strcpy(figTotais[5].codigo,"FWC6");
+  strcpy(figTotais[5].titulo,"Joao");
+  strcpy(figTotais[5].secao,"Chile");
+  strcpy(figTotais[5].tipo,"Normal");
+  figTotais[5].indice = 6;
+
+  strcpy(figTotais[6].codigo,"FWC7");
+  strcpy(figTotais[6].titulo,"Kawano");
+  strcpy(figTotais[6].secao,"Chile");
+  strcpy(figTotais[6].tipo,"Normal");
+  figTotais[6].indice = 7;
+
+  strcpy(figTotais[7].codigo,"FWC8");
+  strcpy(figTotais[7].titulo,"Rodrigo");
+  strcpy(figTotais[7].secao,"Uganda");
+  strcpy(figTotais[7].tipo,"Metalica");
+  figTotais[7].indice = 8;
+
+  strcpy(figTotais[8].codigo,"FWC9");
+  strcpy(figTotais[8].titulo,"Layhon");
+  strcpy(figTotais[8].secao,"Uganda");
+  strcpy(figTotais[8].tipo,"Metalica");
+  figTotais[8].indice = 9;
+
+  strcpy(figTotais[9].codigo,"FWC10");
+  strcpy(figTotais[9].titulo,"Bala");
+  strcpy(figTotais[9].secao,"Uganda");
+  strcpy(figTotais[9].tipo,"Normal");
+  figTotais[9].indice = 10;
+}//fim funcao
+
+void zerarContadores(Album* album){
+  album->qntColadas = 0;
+  album->qntFaltantes = 0;
+  album->qntRepetidas = 0;
+  album->qntDisponiveis = 0;
+}//fim funcao
+
+//---------------------FUNÇÕES INSERIR, LISTAR E EXCLUIR
+
+void funcaoInserir(Album *album)
+{
+  int contador = 0;
+  int salvaIndice = -1;
+  char codigoDigitado[7];
+
+  printf("Digite o código da figurinha que desejas inserir:");
+  fgets(codigoDigitado, 7, stdin);
+  codigoDigitado[strcspn(codigoDigitado, "\n")] = '\0';
+  setbuf(stdin, NULL);
+
+  for (int i = 0; i < album->qntDisponiveis; i++){
+    if (strcasecmp(codigoDigitado, album->figDisponiveis[i].codigo) == 0){
+      album->qntColadas++;
+
+      if(album->qntColadas != 1){
+      album->figColadas = (Figurinha *)realloc(album->figColadas, album->qntColadas * sizeof(Figurinha));
+      }///if-else
+
+      strcpy(album->figColadas[album->qntColadas-1].codigo, album->figDisponiveis[i].codigo);//cola a figurinha
+      strcpy(album->figColadas[album->qntColadas-1].titulo, album->figDisponiveis[i].titulo);
+      strcpy(album->figColadas[album->qntColadas-1].secao, album->figDisponiveis[i].secao);
+      strcpy(album->figColadas[album->qntColadas-1].tipo, album->figDisponiveis[i].tipo);
+      album->figColadas[album->qntColadas-1].indice = album->figDisponiveis[i].indice;
+      salvaIndice = i;
+
+    } else{
+        contador++;
+      } // se a figurinha estiver disponivel, ele cola
+
+  }//for da linha 136
+
+  if (contador == album->qntDisponiveis){
+    printf("\nERRO: a figurinha selecionada não está disponível para ser colada\n");
+  }//if-else
+
+  if(salvaIndice != -1){
+    for(int i = salvaIndice; i < album->qntDisponiveis; i++){
+      strcpy(album->figDisponiveis[i].codigo, album->figDisponiveis[i + 1].codigo);//exclui a figurinha colada das figurinhas disponiveis
+      strcpy(album->figDisponiveis[i].titulo, album->figDisponiveis[i + 1].titulo);
+      strcpy(album->figDisponiveis[i].secao, album->figDisponiveis[i + 1].secao);
+      strcpy(album->figDisponiveis[i].tipo, album->figDisponiveis[i + 1].tipo);
+      album->figDisponiveis[i].indice = album->figDisponiveis[i + 1].indice;
+    }//for que remove a figurinha escolhida da struct de figurinhas disponíveis
+
+    album->qntDisponiveis--;
+    album->figDisponiveis = (Figurinha *)realloc(album->figDisponiveis, album->qntDisponiveis * sizeof(Figurinha));
+  } // if-else da linha 136
+} //Inserir
+
+void funcaoListar(Album *album)
+{
+  printf ("Você tem %i\\10 figurinhas coladas", album->qntColadas);
+  printf("FIGURINHAS COLADAS:\n");
+
+  for (int i = 0; i < album->qntColadas; i++){
+    printf("|%s|\n", album->figColadas[i].titulo);
+  } // for que printa as figurinhas coladas
+  
+  printf("FIGURINHAS DISPONIVEIS:\n");
+
+  for (int i = 0; i < album->qntDisponiveis; i++){
+    printf("|%s|\n", album->figDisponiveis[i].titulo);
+  } // for que printa as figurinhas coladas
+  
+  printf("FIGURINHAS REPETIDAS:\n");
+  for (int i = 0; i < album->qntRepetidas; i++){
+    printf("|%s|\n", album->figRepetidas[i].titulo);
+  } // for que printa as figurinhas coladas
+
+} //Listar
+
+void funcaoExcluir(Album *album){
+  int salvaIndice;
+  char codigoDigitado[7];
+
+  printf("Digite o código da figurinha que desejas excluir:");
+  fgets(codigoDigitado, 7, stdin);
+  codigoDigitado[strcspn(codigoDigitado, "\n")] = '\0';
+  setbuf(stdin, NULL);
+
+  for (int i = 0; i < album->qntColadas; i++){
+    if (strcasecmp(album->figColadas[i].codigo, codigoDigitado) == 0){
+      salvaIndice = i;
+      //nao da pra deixar null no indice pq ele nao eh um pointer
+    } // if-else que remove a figurinha
+  } // for que passa pelas figurinhas ate encontrar a desejada e remove ela
+
+  for (int i = salvaIndice; i < album->qntColadas; i++){
+    strcpy(album->figColadas[i].codigo, album->figColadas[i + 1].codigo);
+    strcpy(album->figColadas[i].titulo, album->figColadas[i + 1].titulo);
+    strcpy(album->figColadas[i].secao, album->figColadas[i + 1].secao);
+    strcpy(album->figColadas[i].tipo, album->figColadas[i + 1].tipo);
+    album->figColadas[i].indice = album->figColadas[i + 1].indice;
+  } // for que passa as figurinhas uma casa p tras, começando a partir do índice da figurinha removida
+
+  album->qntColadas--;
+  album->figColadas = (Figurinha *)realloc(album->figColadas, album->qntColadas * sizeof(Figurinha));
+}//Excluir
+
+//###########################---Murilo---###################################
+
+void gerarIndiceAleatorio(Figurinha Aleatorias[]){
+  srand(time(NULL));
+  //gerando indice figurinhas aleatorias
+
+  for(int i = 0; i < 5; i++){
+    //Na primeira consideraremos um album com apenas 10 figurinhas ficticias
+    Aleatorias[i].indice = rand()%10 + 1;
+  }//for
+
+}//gerarIndiceAleatorio
+
+void salvarFigAleatorias(Figurinha Aleatorias[],Figurinha figTotais[]){
+  int qntFigAlbum = 10;
+
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < qntFigAlbum; j++){
+      if(Aleatorias[i].indice == figTotais[j].indice){
+        Aleatorias[i] = figTotais[j];
+      }//if
+    }//for interno
+  }//for externo
+
+}//salvarFigAleatórias
+
+void printarCodigoFigurinhasAleatorias(Figurinha Aleatorias[]){
+  printf("\n-------------------------------------------------------------------------\n");
+  printf("\nCodigo das figurinhas aleatorias :\n\n");
+
+  for(int i = 0; i < 5; i++){
+    printf("%s\n",Aleatorias[i].codigo);
+  }//for
+
+  printf("\n-------------------------------------------------------------------------\n");
+
+}//printarCodigoFigurinhasAleatorias
+
+void verificarColagem(Album* album,Figurinha figTotais[],Figurinha Aleatorias[]){
+
+  int escolha;
+  int verificarColagem;
+  int verificarDisponibilidade;
+
+  do{
+    //guardar todas as figurinhas em disponiveis e em repetidas
+    //percorrer todas as figurinhas
+    for(int i = 0; i < 5; i++){
+    //resetar a variavel que verifica se a figurinha ja esta salva nas fig coladas
+      verificarColagem = NAO;
+      //percorrer figurinhas coladas
+      for(int j = 0; j <= album->qntColadas; j++){;
+        //verificar se a fig aleatoria ja esta colada
+        if(strcasecmp(Aleatorias[i].codigo, album->figColadas[j].codigo) == 0){
+          verificarColagem = SIM;
+          //salvar a aleatoria em fig repetidas
+          album->qntRepetidas++;
+          album->figRepetidas = (Figurinha*)realloc(album->figRepetidas,album->qntRepetidas*sizeof(Figurinha));
+          album->figRepetidas[album->qntRepetidas - 1] = Aleatorias[i];
+          break;
+        }//if
+      }//for interno - colagem
+        if(verificarColagem == NAO){
+          //resetar a variavel que verifica se a figurinha ja esta salva nas fig disponiveis
+          verificarDisponibilidade = NAO;
+          //percorrer figurinhas disponiveis
+          for(int k = 0; k <= album->qntDisponiveis; k++){
+            //verificar se a fig aleatoria ja esta disponivel
+            if(strcasecmp(Aleatorias[i].codigo, album->figDisponiveis[k].codigo) == 0){
+              verificarDisponibilidade = SIM;
+              //salvar a aleatoria em fig repetidas
+              album->qntRepetidas++;
+              album->figRepetidas = (Figurinha*)realloc(album->figRepetidas,album->qntRepetidas*sizeof(Figurinha));
+              album->figRepetidas[album->qntRepetidas - 1] = Aleatorias[i];
+              break;
+            }//if
+        }//for - disponivel
+        if(verificarDisponibilidade == NAO){
+          album->qntDisponiveis++;
+          album->figDisponiveis = (Figurinha*)realloc(album->figDisponiveis,album->qntDisponiveis*sizeof(Figurinha));
+          album->figDisponiveis[album->qntDisponiveis - 1] = Aleatorias[i];
+        }//if - disponibilidade
+      }// if - nao colada
+    }//for externo
+
+    printf("\nVoce deseja colar alguma dessas figurinhas em seu album?\n");
+    printf("\n1 - Sim\n");
+    printf("2 - Nao\n\n");
+
+    //permitir apenas sim ou nao
+    do{
+      scanf("%d",&escolha);
+      setbuf(stdin, NULL);
+    }while(escolha != SIM && escolha != NAO);
+
+    if(escolha == SIM){
+      funcaoInserir(album);
+    }else{
+      printf("\nAs suas figurinhas foram guardadas com sucesso :)\n");
+    }//else
+
+  }while(escolha == SIM);
+}//verificarColagem
+
+//###########################---Kawano---###################################
+
+//---------------------CÓDIGOS DE MUDANÇA DE COR  
+
+void black (){ printf("\033[0;30m"); }
+void red (){ printf("\033[0;31m"); }
+void green (){ printf("\033[0;32m"); }
+void yellow (){ printf("\033[0;33m"); }
+void blue (){ printf("\033[0;34m"); }
+void purple (){ printf("\033[0;35m"); }
+void cyan (){ printf("\033[0;36m"); }
+void white (){ printf("\033[0;37m"); }
+void Bblack (){ printf("\033[1;30m"); }
+void Bred (){ printf("\033[1;31m"); }
+void Bgreen (){ printf("\033[1;32m"); }
+void Byellow (){ printf("\033[1;33m"); }
+void Bblue (){ printf("\033[1;34m"); }
+void Bpurple (){ printf("\033[1;35m"); }
+void Bcyan (){ printf("\033[1;36m"); }
+void Bwhite (){ printf("\033[1;37m"); }
+
+//---------------------CONFIGURAÇÃO DAS SEÇÕES
+
+void BRA_SC(){
+  int opt2bra;
+  Bgreen();
+  printf ("BRASIL\n");
+  yellow();
+  printf ("Jogadores:\n1 - Murilo\n2 - Garrido\n");
+  
+  green();
+  printf ("Pressione 2 para ir para a próxima página ou qualquer outro número para voltar para o menu\n");
+  scanf ("%i", &opt2bra);
+  setbuf(stdin, NULL);
+
+  switch (opt2bra){
+    case 2: 
+      system("clear");
+      CAN_SC();
+    break;
+
+    default: 
+      system("clear");
+    break;
+  }//switch
+}//BRA_SC
+
+void CAN_SC(){
+  int opt2can;
+  Bred();
+  printf ("CANADA\n");
+  white();
+  printf ("Jogadores:\n1 - Volpato\n2 - Samuel\n3 - Felipe\n");
+
+  red();
+  printf ("Pressione 1 para ir para a página anterior, 2 para ir para a próxima página ou qualquer outro número para voltar para o menu\n");
+  scanf ("%i", &opt2can);
+  setbuf(stdin, NULL);
+
+  switch (opt2can){
+    case 1: 
+      system("clear");
+      BRA_SC();
+    break;
+
+    case 2: 
+      system("clear");
+      CHI_SC();
+    break;
+
+    default: 
+      system("clear");
+    break;
+  }//switch
+}//CAN_SC
+
+void CHI_SC(){
+  int opt2chi;
+  Bblue();
+  printf ("CHILE\n");
+  red();
+  printf ("Jogadores:\n1 - Joao\n2 - Kawano\n");
+
+  blue();
+  printf ("Pressione 1 para ir para a página anterior, 2 para ir para a próxima página ou qualquer outro número para voltar para o menu\n");
+  scanf ("%i", &opt2chi);
+  setbuf(stdin, NULL);
+
+  switch (opt2chi){
+    case 1: 
+      system("clear");
+      CAN_SC();
+    break;
+
+    case 2: 
+      system("clear");
+      UGD_SC();
+    break;
+
+    default: 
+      system("clear");
+    break;
+  }//switch
+}//CHI_SC
+
+void UGD_SC(){
+  int opt2ugd;
+  Bred();
+  printf ("UGANDA\n");
+  yellow();
+  printf ("Jogadores:\n1 - Rodrigo\n2 - Layhon\n3 - Bala\n");
+
+  red();
+  printf ("Pressione 1 para ir para a página anterior ou qualquer outro número para voltar para o menu\n");
+  scanf ("%i", &opt2ugd);
+  setbuf(stdin, NULL);
+
+  switch (opt2ugd){
+    case 1: 
+      system("clear");
+      CHI_SC();
+    break;
+
+    default: 
+      system("clear");
+    break;
+  }//switch
+}//UGD_SC
+
+//---------------------INTERFACE DE ABERTURA DO ALBUM
+void open(Album *album){
+  int opt1;
+
+  printf ("Selecione a seção do album a ser aberta:\n1 - Brasil\n2 - Canada\n3 - Chile\n4 - Uganda\n");
+  scanf ("%i", &opt1);
+  setbuf(stdin, NULL);
+
+  switch (opt1){
+    case BRASIL: 
+      system ("clear");
+      BRA_SC();
+    break;
+
+    case CANADA:
+      system ("clear");
+      CAN_SC();
+    break;
+
+    case CHILE:
+      system ("clear");
+      CHI_SC();
+    break;
+
+    case UGANDA:
+      system ("clear");
+      UGD_SC();
+    break;
+
+    default: 
+      printf("Invalido\n");
+      sleep(1);
+    break;
+  }//switch
+}//open
+
+//---------------------MENU INICIAL
+void menu(Album *album, Figurinha Aleatorias[], Figurinha figTotais[]){
+  // preciso também da relação de figurinhas disponíveis, por baseado nela que faço toda a alteração
+  int opt0, ctrl = 1;
+
+  while(ctrl==1){
+    system("clear");
+    Bwhite();
+    printf("Bem vindo ao album da copa virtual!\nO que desejas fazer?\n\n");
+    white();
+    printf("1 - Colar uma figurinha\n2 - Listar todas as figurinhas\n3 - Remover uma figurinha do album\n4 - Comprar figurinha\n5 - Abrir album\n6 - Encerrar programa\n");
+
+    do{
+      scanf("%d", &opt0);
+      setbuf(stdin, NULL);
+    } while (opt0 < 1 || opt0 > 6);
+
+
+    switch (opt0){
+      case 1:
+        system("clear");
+        funcaoInserir(album);
+        sleep(1);
+      break;
+
+      case 2:
+        system("clear");
+        funcaoListar(album);
+        sleep(1);
+      break;
+
+      case 3:
+        system("clear");
+        funcaoExcluir(album);
+        sleep(1);
+      break;
+
+      case 4:
+        system("clear");
+        gerarIndiceAleatorio(Aleatorias);
+        salvarFigAleatorias(Aleatorias,figTotais);
+        printarCodigoFigurinhasAleatorias(Aleatorias);
+        verificarColagem(album,figTotais,Aleatorias);
+        sleep(1);
+      break;
+
+      case 5:
+        system("clear");
+        open(album);
+        sleep(1);
+      break;
+
+      case 6:
+        system("clear");
+        ctrl = 2;
+        Bred();
+        printf("Programa encerrado\n");
+        sleep(1);
+      break;
+    } // switch 
+
+    setbuf(stdin, NULL);
+
+  }//while
+}//menu
+
+int main(){
+  Album album;
+
+  //mallocs
+  album.figColadas = (Figurinha*)malloc(1*sizeof(Figurinha));
+  album.figFaltantes = (Figurinha*)malloc(1*sizeof(Figurinha));
+  album.figRepetidas = (Figurinha*)malloc(1*sizeof(Figurinha));
+  album.figDisponiveis = (Figurinha*)malloc(1*sizeof(Figurinha));
+
+  Figurinha figTotais[10];
+  Figurinha Aleatorias[5];
+
+  preencherFigurinhasTotaisAlbum(figTotais);
+  zerarContadores(&album);
+  menu(&album,Aleatorias,figTotais);
+  white();
+
+  return 0;
+
+}//main
